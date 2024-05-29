@@ -1,0 +1,4 @@
+moduleName=API
+moduleVersion=1.0
+extensionClasses=com.yzm.project.apiproxy.core.MeatAPI
+#staticExtensionClasses=com.yzm.project.groovy_ext.JavaStaticExt
