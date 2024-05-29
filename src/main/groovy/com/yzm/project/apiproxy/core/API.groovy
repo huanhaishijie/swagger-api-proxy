@@ -106,7 +106,7 @@ class API {
                             }else if(v instanceof Number || v instanceof Boolean){
                                 addParam(String.valueOf(k), String.valueOf(v))
                             }else{
-                                addParam(String.valueOf(k), JSONUtil.toJsonStr(v))
+                                !v ?: addParam(String.valueOf(k), JSONUtil.toJsonStr(v))
                             }
 
                         }
@@ -126,8 +126,8 @@ class API {
                                         res = String.valueOf(res)
                                     }else if(res instanceof InputStream){
 
-                                    } else if(res != null){
-                                        res = JSONUtil.toJsonStr(res)
+                                    } else{
+                                        res = res ? JSONUtil.toJsonStr(res) : res
                                     }
                                 }catch (Exception e){
                                 }
