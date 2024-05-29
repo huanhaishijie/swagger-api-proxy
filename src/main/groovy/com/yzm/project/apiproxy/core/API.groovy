@@ -103,7 +103,7 @@ class API {
                             if(v instanceof InputStream){
                                 addParam(String.valueOf(k), v)
                                 return
-                            }else if(v instanceof Number){
+                            }else if(v instanceof Number || v instanceof Boolean){
                                 addParam(String.valueOf(k), String.valueOf(v))
                             }else{
                                 addParam(String.valueOf(k), JSONUtil.toJsonStr(v))
@@ -122,11 +122,11 @@ class API {
                                 def res
                                 try {
                                     res = clazz1.getMethod("get${fieldName.capitalize()}").invoke(params)
-                                    if(res instanceof Number){
+                                    if(res instanceof Number || res instanceof Boolean){
                                         res = String.valueOf(res)
                                     }else if(res instanceof InputStream){
 
-                                    } else {
+                                    } else if(res != null){
                                         res = JSONUtil.toJsonStr(res)
                                     }
                                 }catch (Exception e){
