@@ -1,7 +1,7 @@
 # swagger-api-proxy 使用介绍
 
 ## 1. 什么是 swagger-api-proxy, 它有什么作用？
-swagger-api-proxy是对规范的swagger-api文档解析生成restapi访问工具，主要用于自动化测试和接口自动化。<br>
+swagger-api-proxy是对规范的swagger-api文档解析生成restapi访问工具，主要用于自动化测试和接口自动化。暂时只指出swagger3以上的版本<br>
 1.无视 get、 post、put......<br>
 2.支持表单，raw,动态路由格式参数 上传文件<br>
 3.支持异步请求<br>
