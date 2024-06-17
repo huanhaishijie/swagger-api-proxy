@@ -43,6 +43,19 @@ class API {
                             data = jsonSlurper.parseText(it?.data)
                         }
                 break
+            case Env.LocalResource:
+                def stream
+                try {
+                    stream = this.class.classLoader.getResourceAsStream(environment.urlOrFilePath)
+                    data = jsonSlurper.parseText(stream.text)
+                }catch (Exception e){
+                    System.err.println "load resource error : ${environment.urlOrFilePath}"
+                }finally {
+                    if(stream != null){
+                        stream.close()
+                    }
+                }
+                break
         }
         assert data != null : "api data can not be null"
 

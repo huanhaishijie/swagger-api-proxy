@@ -10,5 +10,6 @@ package com.yzm.project.apiproxy.environment
  */
 enum Env {
     LocalFile,
+    LocalResource,
     Http
 }
