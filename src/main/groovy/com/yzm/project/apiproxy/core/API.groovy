@@ -156,8 +156,10 @@ class API {
                         builder.port(Integer.parseInt(port).intValue())
                         port = ":" + port
                     }
-                    domain.substring(domain.indexOf(host + port) + (host + port).length() + 1).split("/").each {
-                        builder.addPathSegment(it)
+                    if(domain.length() >domain.indexOf(host + port) + (host + port).length()){
+                        domain.substring(domain.indexOf(host + port) + (host + port).length() + 1).split("/").each {
+                            builder.addPathSegment(it)
+                        }
                     }
                     apiData[t.serverAddr].uri.split("/").each {
                         String segment = it
