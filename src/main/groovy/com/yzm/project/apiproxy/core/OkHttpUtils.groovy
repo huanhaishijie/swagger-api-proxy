@@ -39,9 +39,9 @@ class OkHttpUtils {
             if (okHttpClient == null) {
                 TrustManager[] trustManagers = buildTrustManagers()
                 okHttpClient = new OkHttpClient.Builder()
-                        .connectTimeout(15, TimeUnit.SECONDS)
-                        .writeTimeout(20, TimeUnit.SECONDS)
-                        .readTimeout(20, TimeUnit.SECONDS)
+                        .connectTimeout(60, TimeUnit.SECONDS)
+                        .writeTimeout(60 * 5, TimeUnit.SECONDS)
+                        .readTimeout(60 *  2, TimeUnit.SECONDS)
                         .sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0])
                         .hostnameVerifier { hostname, session -> true }
                         .retryOnConnectionFailure(true)
