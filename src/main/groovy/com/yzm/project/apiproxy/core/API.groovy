@@ -112,16 +112,17 @@ class API {
                             || params instanceof Date  || params instanceof Object[]
                             || params instanceof List || params instanceof Set
                     if (params instanceof Map) {
-                        params?.each { k, v ->
+                        params = params as Map
+                        params.keySet().each { k ->
+                            def v = params[k]
                             if(v instanceof InputStream){
                                 addParam(String.valueOf(k), v)
                                 return
-                            }else if(v instanceof Number || v instanceof Boolean){
+                            }else if(v instanceof Number){
                                 addParam(String.valueOf(k), String.valueOf(v))
                             }else{
-                                !v ?: addParam(String.valueOf(k), JSONUtil.toJsonStr(v))
+                                addParam(String.valueOf(k), JSONUtil.toJsonStr(v))
                             }
-
                         }
                     }else if(!valid){
                         try {
