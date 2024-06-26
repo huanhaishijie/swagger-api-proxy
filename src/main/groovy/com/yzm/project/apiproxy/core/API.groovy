@@ -113,7 +113,7 @@ class API {
                             || params instanceof List || params instanceof Set
                     if (params instanceof Map) {
                         params = params as Map
-                        params.keySet().each { k ->
+                        params?.keySet().each { k ->
                             def v = params[k]
                             if(v instanceof InputStream){
                                 addParam(String.valueOf(k), v)
