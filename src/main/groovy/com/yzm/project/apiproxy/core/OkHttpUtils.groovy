@@ -9,6 +9,7 @@ import javax.net.ssl.SSLContext
 import javax.net.ssl.SSLSocketFactory
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import java.nio.file.Paths
 import java.security.SecureRandom
 import java.security.cert.X509Certificate
 import java.util.concurrent.CompletableFuture
@@ -42,6 +43,7 @@ class OkHttpUtils {
                         .connectTimeout(60, TimeUnit.SECONDS)
                         .writeTimeout(60 * 5, TimeUnit.SECONDS)
                         .readTimeout(60 *  2, TimeUnit.SECONDS)
+                        .cache(new Cache(Paths.get(System.getProperty("java.io.tmpdir"), "okhttp.cache").toFile(), 300 * 1024 * 1024))
                         .sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0])
                         .hostnameVerifier { hostname, session -> true }
                         .retryOnConnectionFailure(true)
