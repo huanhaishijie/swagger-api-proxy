@@ -9,6 +9,34 @@ swagger-api-proxy是对规范的swagger-api文档解析生成restapi访问工具
 5.支持自定义返回类型<br>
 6.环境隔离<br>
 
+### 1.1 版本支持
+
+- 1.0.0
+- 1.0.1
+```angular2html
+
+新版支持
+参数说明
+-d 参数 奇数为key,偶数为value
+-H header 奇数key，偶数value
+-a url
+-x 请求方式
+-f 是否表单提交
+
+
+def res = OkHttpUtils.builder().curl "-H", "application", "platform", "tenant", "default",
+"-d", "datasetId", "1", "buttonId", "login", "condition", [
+op       : "secretVerify",
+secret: pubk,
+params   : encrypt,
+], "dir", "system", "modelId", "sso", "menuId", "sso",
+"-a", "http://localhost:30002/authcenter/core/busi/exec",
+"-X", "POST",
+"-f", false
+```
+
+
+
 ## 2. 使用方式
 
 ### 2.1 pom引用

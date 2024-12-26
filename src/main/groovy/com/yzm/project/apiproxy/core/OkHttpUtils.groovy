@@ -421,6 +421,68 @@ class OkHttpUtils {
     }
 
 
+    <T> Map<String, String>  curl (T... args){
+        assert args != null && args.length != 0, "args can not be null"
+        def params = args as ArrayList<T>
+        def headerIndex = params.findIndexValues {it == '-H'} //请求头
+        assert headerIndex.size() <= 1, "header is repeated !!!"
+        def reqMethod = params.findIndexValues {it == '-X'} //请求方法
+        assert reqMethod.size() <= 1, "method is repeated !!!"
+        def reqParams = params.findIndexValues {it == '-d'} //请求参数
+        assert reqParams.size() <= 1, "params is repeated !!!"
+        def url = params.findIndexValues {it == '-a'} //请求参数
+        assert url.size() == 1, "url is empty or repeated !!!"
+        def isForm = params.findIndexValues {it == '-f'} //请求参数
+        assert isForm.size() <= 1, "isForm is repeated !!!"
+        def indexMap = [
+                h: headerIndex.size() == 1 ? headerIndex[0] : null,
+                x: reqMethod.size() == 1 ? reqMethod[0] : null,
+                d: reqParams.size() == 1 ? reqParams[0] : null,
+                a: url[0],
+                f: isForm.size() == 1 ? isForm[0] : null
+        ].findAll { it.value != null }.sort{ it.value }
+        def keys = indexMap.keySet() as List
+        def isEven = {
+            num ->  assert  (num & 1) == 0  ? " params format error " : null
+        }
+        keys.each {
+            int currentKeyIndex = keys.indexOf(it)
+            boolean isLastKeyIndex = currentKeyIndex == keys.size() - 1
+            int currentIndex = indexMap[it]
+            Integer nextIndex = isLastKeyIndex ? params.size() - 1 : indexMap[keys[currentKeyIndex + 1]] -1
+            switch (it){
+                case "h":
+                    isEven(nextIndex - currentIndex)
+                    while (currentIndex < nextIndex){
+                        currentIndex+=2
+                        addHeader(params[currentIndex - 1], params[currentIndex])
+                    }
+                    break
+                case "d":
+                    isEven(nextIndex - currentIndex)
+                    while (currentIndex < nextIndex){
+                        currentIndex+=2
+                        def val = params[currentIndex]
+                        if(val instanceof String){
+                            addParam(params[currentIndex - 1], val as String)
+                        }else {
+                            addParam(params[currentIndex - 1], val as Object)
+                        }
+                    }
+                    break
+                case "a":
+                    this.url(params[currentIndex + 1] as String)
+                    break
+            }
+        }
+        if(keys.contains("x")){
+            keys.contains("f") ? request(params[indexMap["x"] + 1 ] as String, !params[indexMap["f"] + 1] as boolean) : request(params[indexMap["x"] + 1] as String, true)
+            return sync()
+        }
+        return get().sync()
+    }
+
+
 
 
 }
