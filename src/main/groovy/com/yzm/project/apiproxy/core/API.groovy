@@ -199,7 +199,11 @@ class API {
                     if(isDownload){
                         return result = it.data
                     }else {
-                        result = JSONUtil.toBean(it.data, clazz)
+                        try {
+                            result = JSONUtil.toBean(it.data, clazz)
+                        }catch (Exception e){
+                            throw new RuntimeException("response data not json format")
+                        }
                     }
                 }
             }else {
@@ -208,7 +212,12 @@ class API {
                     if(isDownload){
                         return result = it.data
                     }else {
-                        result = JSONUtil.toBean(it.data, clazz)
+                        try {
+                            result = JSONUtil.toBean(it.data, clazz)
+                        }catch (Exception e){
+                            throw new RuntimeException("response data not json format")
+                        }
+
                     }
                 }
             }
