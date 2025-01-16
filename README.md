@@ -34,7 +34,16 @@ params   : encrypt,
 "-X", "POST",
 "-f", false
 ```
+- 1.0.2
+```angular2html
+新版支持
+curl 增强为curlX,支持动态路由中的自动替换
+例如：
+OkHttpUtils.builder().curl "-a", "http://localhost:30002/1" 可以转变为
+OkHttpUtils.builder().curlX "-a", "http://localhost:30002/{param}", "-d", "param", "1"
+如上使用，方便项目工程使用
 
+```
 
 
 ## 2. 使用方式
