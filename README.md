@@ -20,7 +20,7 @@ swagger-api-proxy是对规范的swagger-api文档解析生成restapi访问工具
 -d 参数 奇数为key,偶数为value
 -H header 奇数key，偶数value
 -a url
--x 请求方式
+-X 请求方式
 -f 是否表单提交
 
 
@@ -41,6 +41,11 @@ curl 增强为curlX,支持动态路由中的自动替换
 例如：
 OkHttpUtils.builder().curl "-a", "http://localhost:30002/1" 可以转变为
 OkHttpUtils.builder().curlX "-a", "http://localhost:30002/{param}", "-d", "param", "1"
+如上使用，方便项目工程使用
+
+mapParamsCurl 增强为header 和raw 转递为 map结构
+OkHttpUtils.builder().curl "-a", "http://localhost:30002/1" 可以转变为
+OkHttpUtils.builder().curlX "-a", "http://localhost:30002/{param}", "-d", ["param":"1"]
 如上使用，方便项目工程使用
 
 ```

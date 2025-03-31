@@ -555,6 +555,71 @@ class OkHttpUtils {
     }
 
 
+    <T> Map<String, String>  mapParamsCurl (T... args){
+        assert args != null && args.length != 0, "args can not be null"
+        def params = args as ArrayList<T>
+        def headerIndex = params.findIndexValues {it == '-H'} //请求头
+        assert headerIndex.size() <= 1, "header is repeated !!!"
+        def reqMethod = params.findIndexValues {it == '-X'} //请求方法
+        assert reqMethod.size() <= 1, "method is repeated !!!"
+        def reqParams = params.findIndexValues {it == '-d'} //请求参数
+        assert reqParams.size() <= 1, "params is repeated !!!"
+        def url = params.findIndexValues {it == '-a'} //请求参数
+        assert url.size() == 1, "url is empty or repeated !!!"
+        def isForm = params.findIndexValues {it == '-f'} //请求参数
+        assert isForm.size() <= 1, "isForm is repeated !!!"
+        def indexMap = [
+                h: headerIndex.size() == 1 ? headerIndex[0] : null,
+                x: reqMethod.size() == 1 ? reqMethod[0] : null,
+                a: url[0],
+                d: reqParams.size() == 1 ? reqParams[0] : null,
+                f: isForm.size() == 1 ? isForm[0] : null
+        ].findAll { it.value != null }.sort{ it.value }
+        def keys = indexMap.keySet() as List
+        def isMap = {
+            data ->  assert  data instanceof Map  ? " params format error " : null
+        }
+        keys.each {
+            int currentIndex = indexMap[it]
+            switch (it){
+                case "h":
+                    isMap(params[currentIndex + 1])
+                    params[currentIndex + 1].each { k, v -> addHeader(k, v) }
+                    break
+                case "a":
+                    if(!this.url){
+                        this.url(params[currentIndex + 1] as String)
+                    }
+                    break
+                case "d":
+                    def routeWords = this.url.split("/") as ArrayList
+                    def index = routeWords.withIndex().findAll { it[0].toString().startsWith("{") && it[0].toString().endsWith("}") }.collect { it[1]} as List
+                    isMap(params[currentIndex + 1])
+                    params[currentIndex + 1].each {
+                        k, v ->
+                            def i = index?.find { routeWords[it][1..-2] == k }
+                            if(i){
+                                routeWords[i] = v
+                            }
+                            if(v instanceof String){
+                                addParam(k, v as String)
+                            }else {
+                                addParam(k, v as Object)
+                            }
+
+                    }
+                    this.url(routeWords.join("/"))
+                    break
+            }
+        }
+        if(keys.contains("x")){
+            keys.contains("f") ? request(params[indexMap["x"] + 1 ] as String, !params[indexMap["f"] + 1] as boolean) : request(params[indexMap["x"] + 1] as String, true)
+            return sync()
+        }
+        return get().sync()
+    }
+
+
 
 
 }
