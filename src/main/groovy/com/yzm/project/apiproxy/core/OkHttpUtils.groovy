@@ -365,6 +365,7 @@ class OkHttpUtils {
                     msg = "请求出错"
                     erro = e.getMessage()
                 }
+                getSemaphoreInstance().release()
             }
 
             @Override
@@ -406,6 +407,7 @@ class OkHttpUtils {
         try {
             getSemaphoreInstance().acquire()
         }catch (Exception e){
+            getSemaphoreInstance().release()
             e.printStackTrace()
         }finally {
             return resultMap

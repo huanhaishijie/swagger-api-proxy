@@ -27,21 +27,32 @@ class API {
             case Env.LocalFile:
                 try {
                     data = jsonSlurper.parseText(new File(environment.urlOrFilePath).text)
+                    if(data == null){
+                        System.err.println(environment.getName() + ":url {"+environment.urlOrFilePath+"} init fail, will not be available swagger-proxy serve")
+                    }
                 }catch (Exception e){
+                    throw new RuntimeException(environment.getName() + ":url {"+environment.urlOrFilePath+"} init fail, will not be available swagger-proxy serve")
                 }
 
                 break
             case Env.Http:
                 String url = environment.urlOrFilePath
-                OkHttpUtils.builder()
-                        .url(url)
-                        .get()
-                        .async {
-                            if (it.code != "200") {
-                                return
+                try {
+                    OkHttpUtils.builder()
+                            .url(url)
+                            .get()
+                            .async {
+                                if (it.code != "200") {
+                                    return
+                                }
+                                data = jsonSlurper.parseText(it?.data)
                             }
-                            data = jsonSlurper.parseText(it?.data)
-                        }
+                    if(data == null){
+                        System.err.println(environment.getName() + ":url {"+environment.urlOrFilePath+"} init fail, will not be available swagger-proxy serve")
+                    }
+                }catch (Exception e){
+                    throw new RuntimeException(environment.getName() + ":url {"+environment.urlOrFilePath+"} init fail, will not be available swagger-proxy serve")
+                }
                 break
             case Env.LocalResource:
                 def stream
