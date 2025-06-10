@@ -37,7 +37,7 @@ swagger-api-proxy是对规范的swagger-api文档解析生成restapi访问工具
 -a url
 -X 请求方式
 -f 是否表单提交
-async 开启异步请求 (OkHttpUtils.builder().curl "-a", "http://www.baidu.com" async
+async 开启异步请求 (OkHttpUtils.builder().curl "-a", "http://www.baidu.com", "async"
 
 
 def res = OkHttpUtils.builder().curl "-H", "application", "platform", "tenant", "default",
