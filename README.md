@@ -8,6 +8,21 @@ swagger-api-proxy是对规范的swagger-api文档解析生成restapi访问工具
 4.支持参数任意格式<br>
 5.支持自定义返回类型<br>
 6.环境隔离<br>
+7.仓库地址<br>
+```angular2html
+    <repositories>
+        <repository>
+            <id>custom-repo</id> <!-- 仓库的唯一标识 -->
+            <url>http://47.109.156.230:13888/repository/internal/</url> <!-- 指定的仓库 URL -->
+            <releases>
+                <enabled>true</enabled> <!-- 允许拉取 release 版本 -->
+            </releases>
+            <snapshots>
+                <enabled>true</enabled> <!-- 允许拉取 snapshot 版本 -->
+            </snapshots>
+        </repository>
+    </repositories>
+```
 
 ### 1.1 版本支持
 
@@ -22,6 +37,7 @@ swagger-api-proxy是对规范的swagger-api文档解析生成restapi访问工具
 -a url
 -X 请求方式
 -f 是否表单提交
+async 开启异步请求 (OkHttpUtils.builder().curl "-a", "http://www.baidu.com" async
 
 
 def res = OkHttpUtils.builder().curl "-H", "application", "platform", "tenant", "default",

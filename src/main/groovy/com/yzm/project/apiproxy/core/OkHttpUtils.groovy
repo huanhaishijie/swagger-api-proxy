@@ -436,6 +436,9 @@ class OkHttpUtils {
         assert url.size() == 1, "url is empty or repeated !!!"
         def isForm = params.findIndexValues {it == '-f'} //请求参数
         assert isForm.size() <= 1, "isForm is repeated !!!"
+        def isAsync = params.findIndexValues {it == 'async'}
+        isAsync = isAsync.size() >= 0
+
         def indexMap = [
                 h: headerIndex.size() == 1 ? headerIndex[0] : null,
                 x: reqMethod.size() == 1 ? reqMethod[0] : null,
@@ -479,7 +482,13 @@ class OkHttpUtils {
         }
         if(keys.contains("x")){
             keys.contains("f") ? request(params[indexMap["x"] + 1 ] as String, !params[indexMap["f"] + 1] as boolean) : request(params[indexMap["x"] + 1] as String, true)
+            if(isAsync){
+                return async()
+            }
             return sync()
+        }
+        if(isAsync){
+            return get().async()
         }
         return get().sync()
     }
@@ -498,6 +507,8 @@ class OkHttpUtils {
         assert url.size() == 1, "url is empty or repeated !!!"
         def isForm = params.findIndexValues {it == '-f'} //请求参数
         assert isForm.size() <= 1, "isForm is repeated !!!"
+        def isAsync = params.findIndexValues {it == 'async'}
+        isAsync = isAsync.size() >= 0
         def indexMap = [
                 h: headerIndex.size() == 1 ? headerIndex[0] : null,
                 x: reqMethod.size() == 1 ? reqMethod[0] : null,
@@ -551,7 +562,13 @@ class OkHttpUtils {
         }
         if(keys.contains("x")){
             keys.contains("f") ? request(params[indexMap["x"] + 1 ] as String, !params[indexMap["f"] + 1] as boolean) : request(params[indexMap["x"] + 1] as String, true)
+            if (isAsync){
+                return async()
+            }
             return sync()
+        }
+        if (isAsync){
+            return get().async()
         }
         return get().sync()
     }
@@ -570,6 +587,8 @@ class OkHttpUtils {
         assert url.size() == 1, "url is empty or repeated !!!"
         def isForm = params.findIndexValues {it == '-f'} //请求参数
         assert isForm.size() <= 1, "isForm is repeated !!!"
+        def isAsync = params.findIndexValues {it == 'async'}
+        isAsync = isAsync.size() >= 0
         def indexMap = [
                 h: headerIndex.size() == 1 ? headerIndex[0] : null,
                 x: reqMethod.size() == 1 ? reqMethod[0] : null,
@@ -616,12 +635,14 @@ class OkHttpUtils {
         }
         if(keys.contains("x")){
             keys.contains("f") ? request(params[indexMap["x"] + 1 ] as String, !params[indexMap["f"] + 1] as boolean) : request(params[indexMap["x"] + 1] as String, true)
+            if (isAsync){
+                return async()
+            }
             return sync()
+        }
+        if (isAsync){
+            return get().async()
         }
         return get().sync()
     }
-
-
-
-
 }
