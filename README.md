@@ -61,7 +61,7 @@ OkHttpUtils.builder().curlX "-a", "http://localhost:30002/{param}", "-d", "param
 
 mapParamsCurl 增强为header 和raw 转递为 map结构
 OkHttpUtils.builder().curl "-a", "http://localhost:30002/1" 可以转变为
-OkHttpUtils.builder().curlX "-a", "http://localhost:30002/{param}", "-d", ["param":"1"]
+OkHttpUtils.builder().mapParamsCurl "-a", "http://localhost:30002/{param}", "-d", ["param":"1"]
 如上使用，方便项目工程使用
 
 ```
