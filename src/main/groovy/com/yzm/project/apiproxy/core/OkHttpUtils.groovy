@@ -35,14 +35,14 @@ class OkHttpUtils {
     /**
      * 初始化okHttpClient，并且允许https访问
      */
-    private OkHttpUtils(){
+    private OkHttpUtils(Long connectTimeout = 60L, Long writeTimeout = 300L, Long readTimeout = 120L){
         synchronized (OkHttpUtils.class) {
             if (okHttpClient == null) {
                 TrustManager[] trustManagers = buildTrustManagers()
                 okHttpClient = new OkHttpClient.Builder()
-                        .connectTimeout(60, TimeUnit.SECONDS)
-                        .writeTimeout(60 * 5, TimeUnit.SECONDS)
-                        .readTimeout(60 *  2, TimeUnit.SECONDS)
+                        .connectTimeout(connectTimeout, TimeUnit.SECONDS)
+                        .writeTimeout(writeTimeout, TimeUnit.SECONDS)
+                        .readTimeout(readTimeout, TimeUnit.SECONDS)
                         .cache(new Cache(Paths.get(System.getProperty("java.io.tmpdir"), "okhttp.cache").toFile(), 300 * 1024 * 1024))
                         .sslSocketFactory(createSSLSocketFactory(trustManagers), (X509TrustManager) trustManagers[0])
                         .hostnameVerifier { hostname, session -> true }
@@ -132,8 +132,8 @@ class OkHttpUtils {
         }
     }
 
-    static OkHttpUtils builder(){
-        return new OkHttpUtils()
+    static OkHttpUtils builder(Long connectTimeout = 60L, Long writeTimeout = 300L, Long readTimeout = 120L){
+        return new OkHttpUtils(connectTimeout, writeTimeout, readTimeout)
     }
 
     /**

@@ -65,20 +65,13 @@ OkHttpUtils.builder().curlX "-a", "http://localhost:30002/{param}", "-d", ["para
 如上使用，方便项目工程使用
 
 ```
-
-
-## 2. 使用方式
-
-### 2.1 pom引用
+- 1.0.3
 ```angular2html
-
-<dependency>
-    <groupId>com.yzm.project</groupId>
-    <artifactId>swagger-api-proxy</artifactId>
-    <version>1.0.0</version>
-</dependency>
-
+新版支持
+OkHttpUtils.builder(Long connectTimeout = 60L, Long writeTimeout = 300L, Long readTimeout = 120L)
+增加超时配置 连接超时时间，写超时时间，读超时时间，默认 60s,300s,120s
 ```
+
 2.2 使用demo
 
 ```angular2html
