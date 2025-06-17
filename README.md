@@ -70,6 +70,8 @@ OkHttpUtils.builder().mapParamsCurl "-a", "http://localhost:30002/{param}", "-d"
 新版支持
 OkHttpUtils.builder(Long connectTimeout = 60L, Long writeTimeout = 300L, Long readTimeout = 120L)
 增加超时配置 连接超时时间，写超时时间，读超时时间，默认 60s,300s,120s
+fix:
+1.修复异步请求失败阻塞
 ```
 
 2.2 使用demo
