@@ -436,6 +436,8 @@ class OkHttpUtils {
         assert url.size() == 1, "url is empty or repeated !!!"
         def isForm = params.findIndexValues {it == '-f'} //请求参数
         assert isForm.size() <= 1, "isForm is repeated !!!"
+        def isAuth = params.findIndexValues {it == '-u'} //认证
+        assert isAuth.size() <= 1, "isAuth is repeated !!!"
         def isAsync = params.findIndexValues {it == 'async'}
         isAsync = isAsync.size() >= 0
 
@@ -444,7 +446,8 @@ class OkHttpUtils {
                 x: reqMethod.size() == 1 ? reqMethod[0] : null,
                 d: reqParams.size() == 1 ? reqParams[0] : null,
                 a: url[0],
-                f: isForm.size() == 1 ? isForm[0] : null
+                f: isForm.size() == 1 ? isForm[0] : null,
+                u: isAuth.size() == 1 ? isAuth[0] : null,
         ].findAll { it.value != null }.sort{ it.value }
         def keys = indexMap.keySet() as List
         def isEven = {
@@ -478,6 +481,9 @@ class OkHttpUtils {
                 case "a":
                     this.url(params[currentIndex + 1] as String)
                     break
+                case "u":
+                    addHeader "Authorization", "Basic " + Base64.getEncoder().encodeToString((params[currentIndex + 1] as String).getBytes())
+                    break
             }
         }
         if(keys.contains("x")){
@@ -507,6 +513,8 @@ class OkHttpUtils {
         assert url.size() == 1, "url is empty or repeated !!!"
         def isForm = params.findIndexValues {it == '-f'} //请求参数
         assert isForm.size() <= 1, "isForm is repeated !!!"
+        def isAuth = params.findIndexValues {it == '-u'} //认证
+        assert isAuth.size() <= 1, "isAuth is repeated !!!"
         def isAsync = params.findIndexValues {it == 'async'}
         isAsync = isAsync.size() >= 0
         def indexMap = [
@@ -514,7 +522,8 @@ class OkHttpUtils {
                 x: reqMethod.size() == 1 ? reqMethod[0] : null,
                 a: url[0],
                 d: reqParams.size() == 1 ? reqParams[0] : null,
-                f: isForm.size() == 1 ? isForm[0] : null
+                f: isForm.size() == 1 ? isForm[0] : null,
+                u: isAuth.size() == 1 ? isAuth[0] : null,
         ].findAll { it.value != null }.sort{ it.value }
         def keys = indexMap.keySet() as List
         def isEven = {
@@ -558,6 +567,9 @@ class OkHttpUtils {
                     }
                     this.url(routeWords.join("/"))
                     break
+                case "u":
+                    addHeader "Authorization", "Basic " + Base64.getEncoder().encodeToString((params[currentIndex + 1] as String).getBytes())
+                    break
             }
         }
         if(keys.contains("x")){
@@ -587,6 +599,8 @@ class OkHttpUtils {
         assert url.size() == 1, "url is empty or repeated !!!"
         def isForm = params.findIndexValues {it == '-f'} //请求参数
         assert isForm.size() <= 1, "isForm is repeated !!!"
+        def isAuth = params.findIndexValues {it == '-u'} //认证
+        assert isAuth.size() <= 1, "isAuth is repeated !!!"
         def isAsync = params.findIndexValues {it == 'async'}
         isAsync = isAsync.size() >= 0
         def indexMap = [
@@ -594,7 +608,8 @@ class OkHttpUtils {
                 x: reqMethod.size() == 1 ? reqMethod[0] : null,
                 a: url[0],
                 d: reqParams.size() == 1 ? reqParams[0] : null,
-                f: isForm.size() == 1 ? isForm[0] : null
+                f: isForm.size() == 1 ? isForm[0] : null,
+                u: isAuth.size() == 1 ? isAuth[0] : null,
         ].findAll { it.value != null }.sort{ it.value }
         def keys = indexMap.keySet() as List
         def isMap = {
@@ -630,6 +645,9 @@ class OkHttpUtils {
 
                     }
                     this.url(routeWords.join("/"))
+                    break
+                case "u":
+                    addHeader "Authorization", "Basic " + Base64.getEncoder().encodeToString((params[currentIndex + 1] as String).getBytes())
                     break
             }
         }
