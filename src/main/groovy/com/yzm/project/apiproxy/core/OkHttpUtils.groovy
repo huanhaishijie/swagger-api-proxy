@@ -425,6 +425,10 @@ class OkHttpUtils {
 
     <T> Map<String, String>  curl (T... args){
         assert args != null && args.length != 0, "args can not be null"
+        if(args.length == 1){
+            args =  ["-a", args[0]]
+        }
+
         def params = args as ArrayList<T>
         def headerIndex = params.findIndexValues {it == '-H'} //请求头
         assert headerIndex.size() <= 1, "header is repeated !!!"
@@ -502,6 +506,9 @@ class OkHttpUtils {
 
     <T> Map<String, String>  curlX (T... args){
         assert args != null && args.length != 0, "args can not be null"
+        if(args.length == 1){
+            args =  ["-a", args[0]]
+        }
         def params = args as ArrayList<T>
         def headerIndex = params.findIndexValues {it == '-H'} //请求头
         assert headerIndex.size() <= 1, "header is repeated !!!"
@@ -588,6 +595,9 @@ class OkHttpUtils {
 
     <T> Map<String, String>  mapParamsCurl (T... args){
         assert args != null && args.length != 0, "args can not be null"
+        if(args.length == 1){
+            args =  ["-a", args[0]]
+        }
         def params = args as ArrayList<T>
         def headerIndex = params.findIndexValues {it == '-H'} //请求头
         assert headerIndex.size() <= 1, "header is repeated !!!"

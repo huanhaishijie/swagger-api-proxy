@@ -77,7 +77,8 @@ fix:
 - 1.0.4
 ```angular2html
 新版支持
-自动认证, 支持-u 参数, OkHttpUtils.builder().curl "-a", "http://localhost:30002/1", "-u", "username:password"
+1. 自动认证, 支持-u 参数, OkHttpUtils.builder().curl "-a", "http://localhost:30002/1", "-u", "username:password"
+2. 单个参数自动转为 url GET同步请求, OkHttpUtils.builder().curl "http://localhost:30002/1"
 ```
 
 2.2 使用demo
