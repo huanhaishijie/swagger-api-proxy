@@ -131,8 +131,14 @@ class API {
                                 return
                             }else if(v instanceof Number){
                                 addParam(String.valueOf(k), String.valueOf(v))
+                                if("GET".compareToIgnoreCase(method)){
+                                    addUrlParam(String.valueOf(k), String.valueOf(v))
+                                }
                             }else{
                                 addParam(String.valueOf(k), JSONUtil.toJsonStr(v))
+                                if("GET".compareToIgnoreCase(method)){
+                                    addUrlParam(String.valueOf(k), JSONUtil.toJsonStr(v))
+                                }
                             }
                         }
                     }else if(!valid){

@@ -48,7 +48,7 @@ class OkHttpUtils {
                         .hostnameVerifier { hostname, session -> true }
                         .retryOnConnectionFailure(true)
                         .build()
-                addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
+//                addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36")
             }
         }
     }
@@ -274,7 +274,9 @@ class OkHttpUtils {
             }catch (Exception e){
 
             }
-            urlBuilder = urlBuilder - 1
+            if(urlBuilder.toString().endsWith("&")){
+                urlBuilder.substring(0, urlBuilder.length() - 1)
+            }
         }
         url = urlBuilder.toString()
 
