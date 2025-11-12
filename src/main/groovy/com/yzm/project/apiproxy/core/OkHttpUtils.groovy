@@ -28,6 +28,7 @@ class OkHttpUtils {
     private static volatile OkHttpClient okHttpClient = null
     private static volatile Semaphore semaphore = null
     private Map<String, Object> headerMap, paramMap, urlParamMap
+    private List<Object> paramList
     private String url
     private Request.Builder request
     private boolean isDownload = false
@@ -223,6 +224,9 @@ class OkHttpUtils {
             if (paramMap != null) {
                 addHeader("Content-Type", "application/json")
                 json = JSONUtil.toJsonStr(paramMap)
+            }else if(paramList != null){
+                addHeader("Content-Type", "application/json")
+                json = JSONUtil.toJsonStr(paramList)
             }
             requestBody = RequestBody.create(MediaType.parse("application/json; charset=utf-8"), json)
         }else {
@@ -473,16 +477,23 @@ class OkHttpUtils {
                     }
                     break
                 case "d":
-                    isEven(nextIndex - currentIndex)
-                    while (currentIndex < nextIndex){
-                        currentIndex+=2
-                        def val = params[currentIndex]
-                        if(val instanceof String){
-                            addParam(params[currentIndex - 1], val as String)
-                        }else {
-                            addParam(params[currentIndex - 1], val as Object)
+                    if(nextIndex - currentIndex == 1){
+                        if(params[currentIndex + 1] instanceof List){
+                            paramList = params[currentIndex + 1]
+                        }
+                    }else {
+                        isEven(nextIndex - currentIndex)
+                        while (currentIndex < nextIndex){
+                            currentIndex+=2
+                            def val = params[currentIndex]
+                            if(val instanceof String){
+                                addParam(params[currentIndex - 1], val as String)
+                            }else {
+                                addParam(params[currentIndex - 1], val as Object)
+                            }
                         }
                     }
+
                     break
                 case "a":
                     this.url(params[currentIndex + 1] as String)
@@ -557,24 +568,30 @@ class OkHttpUtils {
                     }
                     break
                 case "d":
-                    def routeWords = this.url.split("/") as ArrayList
-                    def index = routeWords.withIndex().findAll { it[0].toString().startsWith("{") && it[0].toString().endsWith("}") }.collect { it[1]} as List
-                    isEven(nextIndex - currentIndex)
-                    while (currentIndex < nextIndex){
-                        currentIndex+=2
-                        def key = params[currentIndex - 1]
-                        def val = params[currentIndex]
-                        def i = index?.find { routeWords[it][1..-2] == key }
-                        if(i){
-                            routeWords[i] = val
+                    if(nextIndex - currentIndex == 1){
+                        if(params[currentIndex + 1] instanceof List){
+                            paramList = params[currentIndex + 1]
                         }
-                        if(val instanceof String){
-                            addParam(key, val as String)
-                        }else {
-                            addParam(key, val as Object)
+                    }else {
+                        def routeWords = this.url.split("/") as ArrayList
+                        def index = routeWords.withIndex().findAll { it[0].toString().startsWith("{") && it[0].toString().endsWith("}") }.collect { it[1]} as List
+                        isEven(nextIndex - currentIndex)
+                        while (currentIndex < nextIndex){
+                            currentIndex+=2
+                            def key = params[currentIndex - 1]
+                            def val = params[currentIndex]
+                            def i = index?.find { routeWords[it][1..-2] == key }
+                            if(i){
+                                routeWords[i] = val
+                            }
+                            if(val instanceof String){
+                                addParam(key, val as String)
+                            }else {
+                                addParam(key, val as Object)
+                            }
                         }
+                        this.url(routeWords.join("/"))
                     }
-                    this.url(routeWords.join("/"))
                     break
                 case "u":
                     addHeader "Authorization", "Basic " + Base64.getEncoder().encodeToString((params[currentIndex + 1] as String).getBytes())
@@ -640,23 +657,28 @@ class OkHttpUtils {
                     }
                     break
                 case "d":
-                    def routeWords = this.url.split("/") as ArrayList
-                    def index = routeWords.withIndex().findAll { it[0].toString().startsWith("{") && it[0].toString().endsWith("}") }.collect { it[1]} as List
-                    isMap(params[currentIndex + 1])
-                    params[currentIndex + 1].each {
-                        k, v ->
-                            def i = index?.find { routeWords[it][1..-2] == k }
-                            if(i){
-                                routeWords[i] = v
-                            }
-                            if(v instanceof String){
-                                addParam(k, v as String)
-                            }else {
-                                addParam(k, v as Object)
-                            }
+                    if(params[currentIndex + 1] instanceof List){
+                        paramList = params[currentIndex + 1]
+                    }else {
+                        def routeWords = this.url.split("/") as ArrayList
+                        def index = routeWords.withIndex().findAll { it[0].toString().startsWith("{") && it[0].toString().endsWith("}") }.collect { it[1]} as List
+                        isMap(params[currentIndex + 1])
+                        params[currentIndex + 1].each {
+                            k, v ->
+                                def i = index?.find { routeWords[it][1..-2] == k }
+                                if(i){
+                                    routeWords[i] = v
+                                }
+                                if(v instanceof String){
+                                    addParam(k, v as String)
+                                }else {
+                                    addParam(k, v as Object)
+                                }
 
+                        }
+                        this.url(routeWords.join("/"))
                     }
-                    this.url(routeWords.join("/"))
+
                     break
                 case "u":
                     addHeader "Authorization", "Basic " + Base64.getEncoder().encodeToString((params[currentIndex + 1] as String).getBytes())
