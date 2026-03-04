@@ -204,6 +204,8 @@ class OkHttpUtils {
             case Method.GET:
                 return this.get()
                 break
+            case "PATCH":
+                break
         }
     }
 
@@ -294,6 +296,9 @@ class OkHttpUtils {
                 break
             case Method.DELETE.toString():
                 request = new Request.Builder().delete(requestBody).url(url)
+                break
+            case "PATCH":
+                request = new Request.Builder().patch(requestBody).url(url)
                 break
             case Method.GET.toString():
                 get()
