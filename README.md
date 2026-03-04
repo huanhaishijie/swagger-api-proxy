@@ -275,8 +275,9 @@ class AdvancedUsage {
 - **每个参数只能出现一次**（除了 `async`）
 - **`-H` 后面必须是键值对**：奇数位置为key，偶数位置为value
 - **`-d` 后面可以是**：
-    - 键值对：奇数位为key，偶数位为value
-    - 单个List对象：`-d`, [item1, item2, item3]
+  - 键值对：奇数位为key，偶数位为value
+  - 单个List对象：`-d`, [item1, item2, item3]
+- **不能有多个 `-d` 参数**
 
 #### 使用案例
 
@@ -298,9 +299,7 @@ def response = OkHttpUtils.builder().curl(
     "-a", "http://localhost:30002/api/users",
     "-X", "POST",
     "-H", "Content-Type", "application/json",
-    "-d", "name", "张三", 
-    "-d", "age", "25",
-    "-d", "email", "zhangsan@example.com"
+    "-d", "name", "张三", "age", "25", "email", "zhangsan@example.com"
 )
 ```
 
@@ -333,19 +332,17 @@ def response = OkHttpUtils.builder().curl(
     "-a", "http://localhost:30002/api/login",
     "-X", "POST",
     "-f", true,  // 使用表单格式
-    "-d", "username", "admin",
-    "-d", "password", "123456"
+    "-d", "username", "admin", "password", "123456"
 )
 ```
 
 **文件上传**
 ```groovy
-// 文件上传
+// 文件上传 - 所有参数在一个 -d 中
 def response = OkHttpUtils.builder().curl(
     "-a", "http://localhost:30002/api/upload",
     "-X", "POST",
-    "-d", "file", new FileInputStream("test.txt"),
-    "-d", "description", "测试文件"
+    "-d", "file", new FileInputStream("test.txt"), "description", "测试文件"
 )
 ```
 
@@ -383,8 +380,9 @@ OkHttpUtils.builder().curl(
 与 `curl` 方法相同的参数规则：
 - **`-H` 后面必须是键值对**：奇数位置为key，偶数位置为value
 - **`-d` 后面可以是**：
-    - 键值对：奇数位为key，偶数位为value（用于路由替换和请求参数）
-    - 单个List对象：`-d`, [item1, item2, item3]（不参与路由替换）
+  - 键值对：奇数位为key，偶数位为value（用于路由替换和请求参数）
+  - 单个List对象：`-d`, [item1, item2, item3]（不参与路由替换）
+- **不能有多个 `-d` 参数**
 
 #### 使用案例
 
@@ -407,9 +405,7 @@ def response = OkHttpUtils.builder().curlX(
     "-a", "http://localhost:30002/users/{userId}/comments",
     "-X", "POST",
     "-H", "Content-Type", "application/json",
-    "-d", "userId", "123",  // 用于 URL 替换
-    "-d", "content", "这是一条评论",
-    "-d", "rating", "5"
+    "-d", "userId", "123", "content", "这是一条评论", "rating", "5"
 )
 // 实际请求: http://localhost:30002/users/123/comments
 // 请求体: {"content": "这是一条评论", "rating": "5"}
@@ -422,9 +418,7 @@ def response = OkHttpUtils.builder().curlX(
     "-a", "http://localhost:30002/users/{userId}",
     "-X", "PUT",
     "-H", "Content-Type", "application/json",
-    "-d", "userId", "123",  // 用于 URL 替换
-    "-d", "name", "张三",
-    "-d", "email", "zhangsan@example.com"
+    "-d", "userId", "123", "name", "张三", "email", "zhangsan@example.com"
 )
 // 实际请求: http://localhost:30002/users/123
 ```
@@ -435,9 +429,7 @@ def response = OkHttpUtils.builder().curlX(
 def response = OkHttpUtils.builder().curlX(
     "-a", "http://localhost:30002/api/v1/organizations/{orgId}/departments/{deptId}/employees/{empId}",
     "-X", "GET",
-    "-d", "orgId", "company001",
-    "-d", "deptId", "tech_dept",
-    "-d", "empId", "emp123"
+    "-d", "orgId", "company001", "deptId", "tech_dept", "empId", "emp123"
 )
 // 实际请求: http://localhost:30002/api/v1/organizations/company001/departments/tech_dept/employees/emp123
 ```
@@ -449,8 +441,7 @@ def response = OkHttpUtils.builder().curlX(
     "-a", "http://localhost:30002/users/{userId}",
     "-X", "PATCH",
     "-H", "Content-Type", "application/json",
-    "-d", "userId", "123",
-    "-d", "phone", "13800138000"
+    "-d", "userId", "123", "phone", "13800138000"
 )
 // 实际请求: http://localhost:30002/users/123
 ```
@@ -461,8 +452,7 @@ def response = OkHttpUtils.builder().curlX(
 def response = OkHttpUtils.builder().curlX(
     "-a", "http://localhost:30002/users/{userId}/batch-update",
     "-X", "POST",
-    "-d", "userId", "123",  // 用于 URL 替换
-    "-d", ["item1", "item2", "item3"]  // List，不参与路由替换
+    "-d", "userId", "123", ["item1", "item2", "item3"]  // List，不参与路由替换
 )
 // 实际请求: http://localhost:30002/users/123/batch-update
 ```
@@ -483,8 +473,9 @@ def response = OkHttpUtils.builder().curlX(
 与 `curl` 和 `curlX` 不同的参数规则：
 - **`-H` 后面必须是 Map 对象**：`-H`, [key1: value1, key2: value2]
 - **`-d` 后面可以是**：
-    - Map 对象：`-d`, [key1: value1, key2: value2]（用于路由替换和请求参数）
-    - 单个List对象：`-d`, [item1, item2, item3]（不参与路由替换）
+  - Map 对象：`-d`, [key1: value1, key2: value2]（用于路由替换和请求参数）
+  - 单个List对象：`-d`, [item1, item2, item3]（不参与路由替换）
+- **不能有多个 `-d` 参数**
 
 #### 重要说明
 
@@ -585,10 +576,9 @@ def response = OkHttpUtils.builder().mapParamsCurl(
 ```groovy
 // List 参数不会参与路由占位符替换
 def response = OkHttpUtils.builder().mapParamsCurl(
-    "-a", "http://localhost:30002/users/{userId}/batch-process",
+    "-a", "http://localhost:30002/users/123/batch-process",  // URL 中直接写死 userId
     "-X", "POST",
     "-H", ["Content-Type": "application/json"],
-    "-d", "userId", "123",  // 用于 URL 替换
     "-d", ["item1", "item2", "item3"]  // List，不参与路由替换
 )
 // 实际请求: http://localhost:30002/users/123/batch-process
@@ -602,10 +592,28 @@ OkHttpUtils.builder().mapParamsCurl(
     "-H", "Content-Type", "application/json"  // 错误！必须是 Map
 )
 
+// ❌ 错误：不能有多个 -d 参数
+OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/api/users",
+    "-d", "userId", "123",  // 错误！第一个 -d
+    "-d", ["item1", "item2"]  // 错误！第二个 -d
+)
+
 // ✅ 正确：使用 Map 格式
 OkHttpUtils.builder().mapParamsCurl(
     "-a", "http://localhost:30002/api/users",
     "-H", ["Content-Type": "application/json"]  // 正确
+)
+
+// ✅ 正确：所有参数放在一个 Map 中
+OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/users/{userId}/batch-process",
+    "-X", "POST",
+    "-H", ["Content-Type": "application/json"],
+    "-d", [
+        "userId": "123",  // 用于 URL 替换
+        "items": ["item1", "item2", "item3"]  // List 作为 Map 的值
+    ]
 )
 ```
 
