@@ -13,6 +13,11 @@
 - [版本更新](#版本更新)
 - [使用示例](#使用示例)
 - [API 参考](#api-参考)
+    - [curl 方法详解](#-curl-方法详解)
+    - [curlX 方法详解](#-curlx-方法详解)
+    - [mapParamsCurl 方法详解](#-mapparamscurl-方法详解)
+    - [三种方法对比](#-三种方法对比)
+    - [最佳实践建议](#-最佳实践建议)
 - [常见问题](#常见问题)
 - [贡献指南](#贡献指南)
 
@@ -243,24 +248,385 @@ class AdvancedUsage {
 
 ### OkHttpUtils 主要方法
 
-| 方法 | 描述 | 参数 |
-|------|------|------|
-| `curl(String... args)` | 基础 HTTP 请求 | 支持多种参数格式 |
-| `curlX(String... args)` | 增强版 HTTP 请求（支持动态路由） | 同 `curl`，支持 `{param}` 占位符 |
-| `mapParamsCurl(String... args)` | Map 参数请求 | 支持 Map 结构参数 |
-| `builder()` | 构建器模式 | 可配置超时时间 |
+| 方法 | 描述 | 参数 | 适用场景 |
+|------|------|------|----------|
+| `curl(String... args)` | 基础 HTTP 请求 | 支持多种参数格式 | 简单请求，快速调用 |
+| `curlX(String... args)` | 增强版 HTTP 请求（支持动态路由） | 同 `curl`，支持 `{param}` 占位符 | 动态路由参数替换 |
+| `mapParamsCurl(String... args)` | Map 参数请求 | 支持 Map 结构参数 | 复杂参数结构，代码可读性 |
 
-### 命令行参数
+### 🔧 curl 方法详解
 
-| 参数 | 描述 | 示例 |
-|------|------|------|
-| `-a` | URL 地址 | `-a`, `"http://api.example.com"` |
-| `-X` | HTTP 方法 | `-X`, `"POST"` |
-| `-H` | 请求头 | `-H`, `"Content-Type"`, `"application/json"` |
-| `-d` | 请求数据 | `-d`, `"key1"`, `"value1"`, `"key2"`, `"value2"` |
-| `-f` | 表单提交 | `-f`, `true` |
-| `-u` | 认证信息 | `-u`, `"username:password"` |
-| `async` | 异步请求 | `"async"` |
+`curl` 是最基础的 HTTP 请求方法，支持命令行风格的参数传递。
+
+#### 参数说明
+
+| 参数 | 类型 | 描述 | 示例 |
+|------|------|------|------|
+| `-a` | String | URL 地址（必需） | `-a`, `"http://api.example.com"` |
+| `-X` | String | HTTP 方法 | `-X`, `"POST"` |
+| `-H` | String | 请求头（键值对，奇数位为key，偶数位为value） | `-H`, `"Content-Type"`, `"application/json"` |
+| `-d` | Object | 请求数据（奇数位为key，偶数位为value，或单个List） | `-d`, `"key1"`, `"value1"` |
+| `-f` | Boolean | 是否表单提交 | `-f`, `false` |
+| `-u` | String | 认证信息 | `-u`, `"username:password"` |
+| `async` | - | 异步请求 | `"async"` |
+
+#### 重要说明
+
+- **每个参数只能出现一次**（除了 `async`）
+- **`-H` 后面必须是键值对**：奇数位置为key，偶数位置为value
+- **`-d` 后面可以是**：
+    - 键值对：奇数位为key，偶数位为value
+    - 单个List对象：`-d`, [item1, item2, item3]
+
+#### 使用案例
+
+**基础 GET 请求**
+```groovy
+// 简单 GET 请求
+def response = OkHttpUtils.builder().curl("http://localhost:30002/api/users")
+
+// 等价于
+def response = OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/users"
+)
+```
+
+**带参数的 POST 请求**
+```groovy
+// JSON 格式 POST 请求
+def response = OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/users",
+    "-X", "POST",
+    "-H", "Content-Type", "application/json",
+    "-d", "name", "张三", 
+    "-d", "age", "25",
+    "-d", "email", "zhangsan@example.com"
+)
+```
+
+**多个请求头**
+```groovy
+// 多个请求头
+def response = OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/users",
+    "-X", "GET",
+    "-H", "Content-Type", "application/json",
+    "-H", "Authorization", "Bearer token123",
+    "-H", "X-Custom-Header", "custom-value"
+)
+```
+
+**List 参数**
+```groovy
+// 使用 List 作为参数
+def response = OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/batch",
+    "-X", "POST",
+    "-d", ["user1", "user2", "user3"]  // 单个 List
+)
+```
+
+**表单提交**
+```groovy
+// 表单格式 POST 请求
+def response = OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/login",
+    "-X", "POST",
+    "-f", true,  // 使用表单格式
+    "-d", "username", "admin",
+    "-d", "password", "123456"
+)
+```
+
+**文件上传**
+```groovy
+// 文件上传
+def response = OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/upload",
+    "-X", "POST",
+    "-d", "file", new FileInputStream("test.txt"),
+    "-d", "description", "测试文件"
+)
+```
+
+**认证请求**
+```groovy
+// 基础认证
+def response = OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/protected",
+    "-X", "GET",
+    "-u", "admin:password123"
+)
+```
+
+**异步请求**
+```groovy
+// 异步请求
+OkHttpUtils.builder().curl(
+    "-a", "http://localhost:30002/api/users",
+    "async"
+)
+```
+
+### 🚀 curlX 方法详解
+
+`curlX` 是 `curl` 的增强版本，支持动态路由参数的自动替换。
+
+#### 核心特性
+
+- **动态路由替换**：自动将 URL 中的 `{param}` 占位符替换为实际参数值
+- **参数复用**：路由参数既用于 URL 替换，也作为请求参数传递
+- **更灵活的 URL 构建**：适合 RESTful API 调用
+
+#### 参数说明
+
+与 `curl` 方法相同的参数规则：
+- **`-H` 后面必须是键值对**：奇数位置为key，偶数位置为value
+- **`-d` 后面可以是**：
+    - 键值对：奇数位为key，偶数位为value（用于路由替换和请求参数）
+    - 单个List对象：`-d`, [item1, item2, item3]（不参与路由替换）
+
+#### 使用案例
+
+**基础动态路由**
+```groovy
+// URL: http://localhost:30002/users/{userId}/posts/{postId}
+def response = OkHttpUtils.builder().curlX(
+    "-a", "http://localhost:30002/users/{userId}/posts/{postId}",
+    "-X", "GET",
+    "-d", "userId", "123",
+    "-d", "postId", "456"
+)
+// 实际请求: http://localhost:30002/users/123/posts/456
+```
+
+**POST 创建资源**
+```groovy
+// 创建用户评论
+def response = OkHttpUtils.builder().curlX(
+    "-a", "http://localhost:30002/users/{userId}/comments",
+    "-X", "POST",
+    "-H", "Content-Type", "application/json",
+    "-d", "userId", "123",  // 用于 URL 替换
+    "-d", "content", "这是一条评论",
+    "-d", "rating", "5"
+)
+// 实际请求: http://localhost:30002/users/123/comments
+// 请求体: {"content": "这是一条评论", "rating": "5"}
+```
+
+**PUT 更新资源**
+```groovy
+// 更新用户信息
+def response = OkHttpUtils.builder().curlX(
+    "-a", "http://localhost:30002/users/{userId}",
+    "-X", "PUT",
+    "-H", "Content-Type", "application/json",
+    "-d", "userId", "123",  // 用于 URL 替换
+    "-d", "name", "张三",
+    "-d", "email", "zhangsan@example.com"
+)
+// 实际请求: http://localhost:30002/users/123
+```
+
+**复杂路由参数**
+```groovy
+// 多级嵌套路由
+def response = OkHttpUtils.builder().curlX(
+    "-a", "http://localhost:30002/api/v1/organizations/{orgId}/departments/{deptId}/employees/{empId}",
+    "-X", "GET",
+    "-d", "orgId", "company001",
+    "-d", "deptId", "tech_dept",
+    "-d", "empId", "emp123"
+)
+// 实际请求: http://localhost:30002/api/v1/organizations/company001/departments/tech_dept/employees/emp123
+```
+
+**PATCH 部分更新**
+```groovy
+// 部分更新用户信息
+def response = OkHttpUtils.builder().curlX(
+    "-a", "http://localhost:30002/users/{userId}",
+    "-X", "PATCH",
+    "-H", "Content-Type", "application/json",
+    "-d", "userId", "123",
+    "-d", "phone", "13800138000"
+)
+// 实际请求: http://localhost:30002/users/123
+```
+
+**List 参数（不参与路由替换）**
+```groovy
+// List 参数不会参与路由占位符替换
+def response = OkHttpUtils.builder().curlX(
+    "-a", "http://localhost:30002/users/{userId}/batch-update",
+    "-X", "POST",
+    "-d", "userId", "123",  // 用于 URL 替换
+    "-d", ["item1", "item2", "item3"]  // List，不参与路由替换
+)
+// 实际请求: http://localhost:30002/users/123/batch-update
+```
+
+### 📋 mapParamsCurl 方法详解
+
+`mapParamsCurl` 使用 Map 结构传递参数，提供更好的代码可读性和组织性。
+
+#### 核心特性
+
+- **Map 参数结构**：使用 Map 传递参数，代码更清晰
+- **动态路由支持**：同样支持 `{param}` 占位符替换
+- **头信息 Map**：支持 Map 格式的请求头设置
+- **类型安全**：更好的参数类型检查
+
+#### 参数说明
+
+与 `curl` 和 `curlX` 不同的参数规则：
+- **`-H` 后面必须是 Map 对象**：`-H`, [key1: value1, key2: value2]
+- **`-d` 后面可以是**：
+    - Map 对象：`-d`, [key1: value1, key2: value2]（用于路由替换和请求参数）
+    - 单个List对象：`-d`, [item1, item2, item3]（不参与路由替换）
+
+#### 重要说明
+
+- **每个参数只能出现一次**（除了 `async`）
+- **`-H` 必须使用 Map 格式**
+- **`-d` 支持 Map 和 List 两种格式**
+- **List 参数不参与路由占位符替换**
+
+#### 使用案例
+
+**基础 Map 参数**
+```groovy
+// 使用 Map 传递参数
+def response = OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/api/users",
+    "-X", "POST",
+    "-H", ["Content-Type": "application/json", "Authorization": "Bearer token123"],
+    "-d", [
+        "name": "张三",
+        "age": 25,
+        "email": "zhangsan@example.com"
+    ]
+)
+```
+
+**动态路由 + Map 参数**
+```groovy
+// 动态路由与 Map 参数结合
+def response = OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/users/{userId}/profile",
+    "-X", "PUT",
+    "-H", ["Content-Type": "application/json"],
+    "-d", [
+        "userId": "123",  // 用于 URL 替换
+        "nickname": "小张",
+        "bio": "这是个人简介",
+        "location": "北京"
+    ]
+)
+// 实际请求: http://localhost:30002/users/123/profile
+```
+
+**复杂嵌套参数**
+```groovy
+// 嵌套对象参数
+def response = OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/api/orders",
+    "-X", "POST",
+    "-H", ["Content-Type": "application/json"],
+    "-d", [
+        "userId": "123",
+        "items": [
+            ["productId": "p001", "quantity": 2, "price": 99.99],
+            ["productId": "p002", "quantity": 1, "price": 199.99]
+        ],
+        "shippingAddress": [
+            "street": "北京市朝阳区xxx街道",
+            "city": "北京",
+            "zipCode": "100000"
+        ]
+    ]
+)
+```
+
+**查询参数 Map**
+```groovy
+// GET 请求的查询参数
+def response = OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/api/users/{userId}/orders",
+    "-X", "GET",
+    "-d", [
+        "userId": "123",  // URL 参数
+        "status": "completed",  // 查询参数
+        "page": 1,
+        "pageSize": 10,
+        "sortBy": "createdAt"
+    ]
+)
+// 实际请求: http://localhost:30002/users/123/orders?status=completed&page=1&pageSize=10&sortBy=createdAt
+```
+
+**文件上传 Map**
+```groovy
+// 文件上传使用 Map
+def response = OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/api/upload",
+    "-X", "POST",
+    "-d", [
+        "file": new FileInputStream("document.pdf"),
+        "fileName": "重要文档.pdf",
+        "category": "official",
+        "description": "这是官方文档"
+    ]
+)
+```
+
+**List 参数（不参与路由替换）**
+```groovy
+// List 参数不会参与路由占位符替换
+def response = OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/users/{userId}/batch-process",
+    "-X", "POST",
+    "-H", ["Content-Type": "application/json"],
+    "-d", "userId", "123",  // 用于 URL 替换
+    "-d", ["item1", "item2", "item3"]  // List，不参与路由替换
+)
+// 实际请求: http://localhost:30002/users/123/batch-process
+```
+
+**错误示例对比**
+```groovy
+// ❌ 错误：mapParamsCurl 中 -H 不能使用键值对
+OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/api/users",
+    "-H", "Content-Type", "application/json"  // 错误！必须是 Map
+)
+
+// ✅ 正确：使用 Map 格式
+OkHttpUtils.builder().mapParamsCurl(
+    "-a", "http://localhost:30002/api/users",
+    "-H", ["Content-Type": "application/json"]  // 正确
+)
+```
+
+### 🔄 三种方法对比
+
+| 特性 | curl | curlX | mapParamsCurl |
+|------|------|-------|--------------|
+| **参数格式** | 键值对列表（-H/-d 奇偶位） | 键值对列表（-H/-d 奇偶位） | Map 结构（-H/-d 必须是Map） |
+| **动态路由** | ❌ | ✅ | ✅ |
+| **代码可读性** | 一般 | 良好 | 最佳 |
+| **复杂参数** | 支持 | 支持 | 最佳支持 |
+| **头信息设置** | 键值对（奇偶位） | 键值对（奇偶位） | Map 格式 |
+| **List 参数** | ✅ 支持 | ✅ 支持（不参与路由替换） | ✅ 支持（不参与路由替换） |
+| **适用场景** | 快速测试 | RESTful API | 复杂业务逻辑 |
+
+### 💡 最佳实践建议
+
+1. **简单请求**：使用 `curl`，代码简洁
+2. **RESTful API**：使用 `curlX`，自动处理路由参数
+3. **复杂业务逻辑**：使用 `mapParamsCurl`，代码结构清晰
+4. **团队协作**：推荐 `mapParamsCurl`，便于维护和理解
 
 ### ApiServer 主要方法
 
@@ -277,8 +643,8 @@ class AdvancedUsage {
 A: 使用 `curlX` 方法，支持 `{param}` 占位符自动替换：
 ```groovy
 OkHttpUtils.builder().curlX(
-    "-a", "http://localhost:30002/users/{userId}",
-    "-d", "userId", "123"
+        "-a", "http://localhost:30002/users/{userId}",
+        "-d", "userId", "123"
 )
 ```
 
@@ -286,9 +652,9 @@ OkHttpUtils.builder().curlX(
 A: 使用构建器模式配置：
 ```groovy
 OkHttpUtils.builder(
-    60L,  // 连接超时（秒）
-    300L, // 写入超时（秒）
-    120L  // 读取超时（秒）
+        60L,  // 连接超时（秒）
+        300L, // 写入超时（秒）
+        120L  // 读取超时（秒）
 )
 ```
 
@@ -296,9 +662,9 @@ OkHttpUtils.builder(
 A: 使用 `FileInputStream` 传递文件：
 ```groovy
 server.get(true, [
-    file: new FileInputStream(new File("path/to/file")),
-    type: "FILE",
-    name: "filename.txt"
+        file: new FileInputStream(new File("path/to/file")),
+        type: "FILE",
+        name: "filename.txt"
 ], Map.class)
 ```
 
